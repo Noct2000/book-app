@@ -1,7 +1,6 @@
 package com.example.bookapp.mapper.impl;
 
-import com.example.bookapp.dto.request.CreateBookRequestDto;
-import com.example.bookapp.dto.request.UpdateBookRequestDto;
+import com.example.bookapp.dto.request.BookRequestDto;
 import com.example.bookapp.dto.response.BookResponseDto;
 import com.example.bookapp.mapper.BookMapper;
 import com.example.bookapp.model.Book;
@@ -10,26 +9,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class BookMapperImpl implements BookMapper {
     @Override
-    public Book toModel(CreateBookRequestDto createBookRequestDto) {
-        return new Book()
-                .setAuthor(createBookRequestDto.getAuthor())
-                .setCoverImage(createBookRequestDto.getCoverImage())
-                .setIsbn(createBookRequestDto.getIsbn())
-                .setPrice(createBookRequestDto.getPrice())
-                .setDescription(createBookRequestDto.getDescription())
-                .setTitle(createBookRequestDto.getTitle());
+    public Book toModel(BookRequestDto bookRequestDto) {
+        return getBook(new Book(), bookRequestDto);
     }
 
     @Override
-    public Book toModel(UpdateBookRequestDto updateBookRequestDto, Long id) {
-        return new Book()
-                .setId(id)
-                .setAuthor(updateBookRequestDto.getAuthor())
-                .setCoverImage(updateBookRequestDto.getCoverImage())
-                .setIsbn(updateBookRequestDto.getIsbn())
-                .setPrice(updateBookRequestDto.getPrice())
-                .setDescription(updateBookRequestDto.getDescription())
-                .setTitle(updateBookRequestDto.getTitle());
+    public Book toModel(BookRequestDto bookRequestDto, Long id) {
+        return getBook(new Book().setId(id), bookRequestDto);
     }
 
     @Override
@@ -43,5 +29,15 @@ public class BookMapperImpl implements BookMapper {
                 book.getDescription(),
                 book.getCoverImage()
         );
+    }
+
+    private Book getBook(Book book, BookRequestDto bookRequestDto) {
+        return book
+                .setAuthor(bookRequestDto.getAuthor())
+                .setCoverImage(bookRequestDto.getCoverImage())
+                .setIsbn(bookRequestDto.getIsbn())
+                .setPrice(bookRequestDto.getPrice())
+                .setDescription(bookRequestDto.getDescription())
+                .setTitle(bookRequestDto.getTitle());
     }
 }

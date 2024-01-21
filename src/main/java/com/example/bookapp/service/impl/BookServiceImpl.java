@@ -1,7 +1,6 @@
 package com.example.bookapp.service.impl;
 
-import com.example.bookapp.dto.request.CreateBookRequestDto;
-import com.example.bookapp.dto.request.UpdateBookRequestDto;
+import com.example.bookapp.dto.request.BookRequestDto;
 import com.example.bookapp.dto.response.BookResponseDto;
 import com.example.bookapp.mapper.BookMapper;
 import com.example.bookapp.model.Book;
@@ -19,8 +18,8 @@ public class BookServiceImpl implements BookService {
     private final BookMapper bookMapper;
 
     @Override
-    public BookResponseDto save(CreateBookRequestDto createBookRequestDto) {
-        Book savedBook = bookRepository.save(bookMapper.toModel(createBookRequestDto));
+    public BookResponseDto save(BookRequestDto bookRequestDto) {
+        Book savedBook = bookRepository.save(bookMapper.toModel(bookRequestDto));
         return bookMapper.toResponse(savedBook);
     }
 
@@ -32,11 +31,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookResponseDto update(Long id, UpdateBookRequestDto updateBookRequestDto) {
+    public BookResponseDto update(Long id, BookRequestDto bookRequestDto) {
         if (!bookRepository.existsById(id)) {
             throw new EntityNotFoundException("No book for update by id: " + id);
         }
-        Book book = bookMapper.toModel(updateBookRequestDto, id);
+        Book book = bookMapper.toModel(bookRequestDto, id);
 
         return bookMapper.toResponse(bookRepository.save(book));
     }
