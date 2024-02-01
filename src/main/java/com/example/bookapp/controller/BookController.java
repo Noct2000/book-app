@@ -1,6 +1,6 @@
 package com.example.bookapp.controller;
 
-import com.example.bookapp.dto.request.BookRequestDto;
+import com.example.bookapp.dto.request.CreateBookRequestDto;
 import com.example.bookapp.dto.response.BookResponseDto;
 import com.example.bookapp.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,9 +29,9 @@ public class BookController {
     public ResponseEntity<BookResponseDto> save(
             @RequestBody
             @Valid
-            BookRequestDto bookRequestDto
+            CreateBookRequestDto createBookRequestDto
     ) {
-        return ResponseEntity.ok(bookService.save(bookRequestDto));
+        return ResponseEntity.ok(bookService.save(createBookRequestDto));
     }
 
     @Operation(

@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import lombok.Data;
 
 @Data
-public class BookRequestDto {
+public class CreateBookRequestDto {
     @NotBlank
     private String title;
     @NotBlank

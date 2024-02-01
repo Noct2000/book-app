@@ -1,6 +1,6 @@
 package com.example.bookapp.mapper.impl;
 
-import com.example.bookapp.dto.request.BookRequestDto;
+import com.example.bookapp.dto.request.CreateBookRequestDto;
 import com.example.bookapp.dto.response.BookResponseDto;
 import com.example.bookapp.mapper.BookMapper;
 import com.example.bookapp.model.Book;
@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class BookMapperImpl implements BookMapper {
     @Override
-    public Book toModel(BookRequestDto bookRequestDto) {
-        return getBook(new Book(), bookRequestDto);
+    public Book toModel(CreateBookRequestDto createBookRequestDto) {
+        return getBook(new Book(), createBookRequestDto);
     }
 
     @Override
-    public Book toModel(BookRequestDto bookRequestDto, Long id) {
-        return getBook(new Book().setId(id), bookRequestDto);
+    public Book toModel(CreateBookRequestDto createBookRequestDto, Long id) {
+        return getBook(new Book().setId(id), createBookRequestDto);
     }
 
     @Override
@@ -31,13 +31,13 @@ public class BookMapperImpl implements BookMapper {
         );
     }
 
-    private Book getBook(Book book, BookRequestDto bookRequestDto) {
+    private Book getBook(Book book, CreateBookRequestDto createBookRequestDto) {
         return book
-                .setAuthor(bookRequestDto.getAuthor())
-                .setCoverImage(bookRequestDto.getCoverImage())
-                .setIsbn(bookRequestDto.getIsbn())
-                .setPrice(bookRequestDto.getPrice())
-                .setDescription(bookRequestDto.getDescription())
-                .setTitle(bookRequestDto.getTitle());
+                .setAuthor(createBookRequestDto.getAuthor())
+                .setCoverImage(createBookRequestDto.getCoverImage())
+                .setIsbn(createBookRequestDto.getIsbn())
+                .setPrice(createBookRequestDto.getPrice())
+                .setDescription(createBookRequestDto.getDescription())
+                .setTitle(createBookRequestDto.getTitle());
     }
 }
