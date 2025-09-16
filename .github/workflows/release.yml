@@ -1,3 +1,6 @@
+permissions:
+  contents: write   # allow creating/updating releases (and tags)
+
 name: Build & Release
 
 on:
