@@ -1,0 +1,89 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'                # push of a tag like v1.0.0 will trigger the build and release
+  release:
+    types: [published]     # trigger when a release is published via the UI
+  workflow_dispatch:       # manual trigger (optional input 'tag')
+    inputs:
+      tag:
+        description: 'Tag to release (optional). If empty, workflow will use the pushed tag or release tag.'
+        required: false
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 and cache Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'   # AdoptOpenJDK/Temurin distribution
+          java-version: '21'        # use Java 21
+          cache: 'maven'            # enable maven build cache
+
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
+      - name: Build package (run tests)
+        run: ./mvnw -B -U package
+
+      - name: Locate built JAR
+        id: find_artifact
+        run: |
+          set -e
+          # find the first non-source/non-javadoc/non-original jar in target/
+          JAR=$(ls target/*.jar 2>/dev/null | grep -v 'sources\|javadoc\|original' | head -n1 || true)
+          if [ -z "$JAR" ]; then
+            echo "No jar found in target/ — failing"
+            ls -la target || true
+            exit 1
+          fi
+          echo "artifact=$JAR" >> $GITHUB_OUTPUT
+
+      - name: Determine tag to use for release
+        id: vars
+        run: |
+          # prefer explicit input tag (workflow_dispatch), then pushed tag, then release event tag
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag }}" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          elif [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="v${GITHUB_RUN_NUMBER}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Create Release (if not exists)
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          release_name: Release ${{ steps.vars.outputs.tag }}
+          body: Automated release created by workflow
+          draft: false
+          prerelease: false
+
+      - name: Upload JAR to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.find_artifact.outputs.artifact }}
+          asset_name: book-app-${{ steps.vars.outputs.tag }}.jar
+          asset_content_type: application/java-archive
+
+      - name: Upload artifact to workflow (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: book-app-jar
+          path: ${{ steps.find_artifact.outputs.artifact }}
